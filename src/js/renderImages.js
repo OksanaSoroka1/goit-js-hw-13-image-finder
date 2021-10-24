@@ -1,63 +1,79 @@
 import PhotoApiServis from './apiService';
 import photoListTemplate from '../templates/photoList.hbs';
-import { notice, defaultModules } from '@pnotify/core';
+import { notice, error,  defaultModules } from '@pnotify/core';
 import * as PNotifyDesktop from '@pnotify/desktop';
 import '@pnotify/core/dist/PNotify.css';
 import '@pnotify/core/dist/BrightTheme.css';
-import * as basicLightbox from 'basiclightbox';
+import lightboxModal from './lightboxImage';
+
 
 const searchForm = document.querySelector('#search-form');
-const galleryList = document.querySelector('.gallery')
-const loadMoreBtn = document.querySelector('.load-more-button')
+const galleryList = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more-button');
+const showLessBtn = document.querySelector('.button-showLess');
 
 searchForm.addEventListener('submit', onLoadBtnClick);
 
 const newPhotoApiServis = new PhotoApiServis();
 
-function onLoadBtnClick(event){   
+//on load button click
+async function onLoadBtnClick(event){   
 event.preventDefault();
 
 newPhotoApiServis.query = event.currentTarget.elements.query.value;
 newPhotoApiServis.resetPage();
  clearList();
  loadMoreBtnIsHidden();
- renderCards()
-    .then(photos => {
-        if(photos.hits.length === 0){
-         const myNotice = notice({text: "Not found. Enter the word"})
-          return
-        }      
-         loadMoreBtnIsVisible()       
-    })
-    .catch(error => console.log(error)) 
+ try {
+   const photosArrey = await renderCards()
+    if(photosArrey.hits.length === 0){
+        const myNotice = notice({text: "Not found. Enter the word"})
+         return
+     }      
+    loadMoreBtnIsVisible()          
+ } catch (err) {
+    if(photosArrey.hits.length === 0){return}
+    console.log(err);
+   const myError = error({text: `Error! ${err}`})
+ }
 }
 
-function onLoadMoreBtnClick(event){  
-    renderCards()
-    .then(smoothScroll)
-    .catch(error => console.log(error))     
+// fetch and render on loadMoreBtn click
+async function onLoadMoreBtnClick(event){  
+  try {
+    const photosArrey = await renderCards();
+    smoothScroll(photosArrey.hits[0].id)
+    
+  } catch (err) {
+    console.log(err);
+    const myError = error({text: `Error! ${err}`})
+  }  
 }
 
-//function render cards
-function renderCards(){
-   return newPhotoApiServis.toFetchPhotos()
-    .then(photos => {
-        galleryList.insertAdjacentHTML('beforeend', photoListTemplate(photos));
-        renderimageModal();
-       return photos;
-    })   
+//function fetch and render cards
+async function renderCards(){
+   const photos = await newPhotoApiServis.toFetchPhotos()    
+    await galleryList.insertAdjacentHTML('beforeend', photoListTemplate(photos));
+    lightboxModal('.photo-card');
+    showLessBtnIsVisible()
+    return photos;      
 }
 
-function smoothScroll(){
-    loadMoreBtn.scrollIntoView({
+//smooth scroll
+function smoothScroll(elem){
+    const element = document.getElementById(`${elem}`);
+    element.scrollIntoView({
         behavior: 'smooth',
         block: 'end',
       });
 }
 
+//clear list
 function clearList(){
     galleryList.innerHTML = '';
 }
+
+//load more button
 function loadMoreBtnIsVisible(){
     loadMoreBtn.classList.add('is-visible');
     loadMoreBtn.addEventListener('click', onLoadMoreBtnClick)
@@ -67,21 +83,21 @@ function loadMoreBtnIsHidden(){
     loadMoreBtn.removeEventListener('click', onLoadMoreBtnClick)
 }
 
-
-//lightboxImage modal
-function renderimageModal(){
-    const photoCard = document.querySelectorAll('.photo-card');
-    console.log("🚀 ~ file: renderImages.js ~ line 69 ~ photoCard", photoCard)
-    photoCard.forEach(photoCard => photoCard.addEventListener('click', onImageClick))
+//showLess button
+function showLessBtnIsVisible(){
+    setInterval(() => {
+        if (window.pageYOffset > 400) {
+            showLessBtn.classList.add('is-visible');
+            showLessBtn.addEventListener('click', onShowLessBtnClick)
+        }
+        else{
+            showLessBtn.classList.remove('is-visible');
+            showLessBtn.removeEventListener('click', onShowLessBtnClick);
+        }
+    }, 1000
+    )
     
 }
-function onImageClick(event){
-    if(event.target.nodeName !== 'IMG'){return}
-    const bigImgUrl = event.target.dataset.source;
-    const bigImgAlt = event.target.alt
-    const modalImage = basicLightbox.create(`
-    <img src="${bigImgUrl}" alt="${bigImgAlt}">
-    `)
-    modalImage.show()
-    
-    }
+function onShowLessBtnClick(event){
+    smoothScroll('search-form');   
+}

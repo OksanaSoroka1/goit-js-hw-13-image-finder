@@ -13,25 +13,19 @@ export default class PhotoApiServis{
     this.searchQuery = ''
   }
 
-  toFetchPhotos(){
+ async toFetchPhotos(){
     const url = `${BASE_URL}?image_type=photo&orientation=horizontal&q=${this.searchQuery}&page=${this.page}&per_page=12&key=${API_key}`
     if(this.searchQuery.length > 0){
-      return  fetch(url)
-      .then(responce => {console.log( responce); 
-        return  responce.json()})
-        .then(photos =>{
-           console.log(photos);
-          
-          this.incrementPage()
-        return photos}
-        )
+        const responce = await fetch(url);
+        const photos = await responce.json();
+        this.incrementPage();
+        return photos        
     }
     else{
       const myNotice = notice(
-          {text: 'Enter the word'}
+          {text: 'Please enter the word'}
       )
-  }
-  
+  } 
   }
   get query() {
     return this.searchQuery;
@@ -41,11 +35,11 @@ export default class PhotoApiServis{
     this.searchQuery = newQuery;
   }
 
-   incrementPage(){
+  incrementPage(){
     this.page += 1;
-}
- resetPage(){
+  }
+  resetPage(){
   this.page = 1;
-}
+  }
 }
 

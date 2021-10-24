@@ -1,0 +1,25 @@
+.button-showLess {
+  position: fixed;
+  top: 60%;
+  right: 5px;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 1px solid rgb(196, 75, 75);
+  background-color: #fff;
+  color: rgb(196, 75, 75);
+  font-size: 30px;
+
+  & span {
+    margin: 0;
+  }
+
+  &.is-visible {
+    display: flex;
+  }
+}
