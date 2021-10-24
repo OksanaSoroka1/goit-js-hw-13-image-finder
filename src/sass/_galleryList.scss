@@ -1,0 +1,33 @@
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -20px;
+  margin-top: -20px;
+}
+
+.photo-card {
+  flex-basis: calc(100% / 3 - 20px);
+  margin-right: 20px;
+  margin-top: 20px;
+  border: 1px solid rgb(202, 171, 171);
+}
+.photo-thumb {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+}
+.stats {
+  padding: 5px;
+}
+.stats-item {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  &:not(:last-child) {
+    margin-bottom: 5px;
+  }
+}
+.material-icons {
+  margin-right: 5px;
+  color: rgb(196, 75, 75);
+}

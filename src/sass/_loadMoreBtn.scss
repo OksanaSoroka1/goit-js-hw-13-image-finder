@@ -1,0 +1,9 @@
+.load-more-button {
+  display: none;
+  margin-right: auto;
+  margin-left: auto;
+
+  &.is-visible {
+    display: flex;
+  }
+}
