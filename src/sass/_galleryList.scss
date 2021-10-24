@@ -15,6 +15,10 @@
   min-height: 160px;
   display: flex;
   align-items: center;
+
+  & img {
+    cursor: pointer;
+  }
 }
 .stats {
   padding: 5px;
